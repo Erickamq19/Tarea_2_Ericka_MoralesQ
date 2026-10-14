@@ -10,7 +10,7 @@
     <h3>Registro de una nueva tarea</h3>
     <br />
     <form id="formulario_registro">
-        <input type="hidden" id="Id" name="Id" value="0"/>
+        <input type="hidden" id="Id" name="Id" value="0" />
         <div>
             <label for="Titulo">Título:</label>
             <input type="text" id="Titulo" name="Titulo" placeholder="Ejemplo: Tarea 2 - Programación web" />
@@ -33,6 +33,7 @@
 
         <button type="submit" id="btn_registrar">Registrar</button>
         <button type="button" id="btn_cancelar" style="display:none;">Cancelar</button>
+        <button type="button" id="btn_eliminar" style="display:none;">Eliminar</button>
 
     </form>
 
@@ -115,6 +116,7 @@
                 });
             }
 
+            ///EVENTO DE CAMBIAR ESTADO
             $("#tb_lista").on("change", ".estado_tarea", function () {
                 var idT = $(this).data("id");
                 var nEstado = $(this).val() === "true";
@@ -135,9 +137,10 @@
                 });
             });
 
+            ///EVENTO DE EDICIÓN
             $("#tb_lista").on("click", "tr.registroT", function (e) {
                 if ($(e.target).closest("select").length > 0) {
-                    return
+                    return;
                 }
                 var idT2 = $(this).data("id");
                 $.ajax({
@@ -158,6 +161,7 @@
 
                         $("#btn_registrar").text("Guardar cambios");
                         $("#btn_cancelar").show();
+                        $("#btn_eliminar").show();
                         $("#mensaje").text("Se está editando la tarea: " + tarea.Id);
 
                     },
@@ -170,7 +174,7 @@
 
 
             conexiontabla();
-
+            ///EVENTO DE REGISTRO
             $("#formulario_registro").on("submit", function (e) {
                 e.preventDefault();
                 var variables = {
@@ -205,6 +209,7 @@
                             $("#Id").val("0");
                             $("#btn_registrar").text("Registrar");
                             $("#btn_cancelar").hide();
+                            $("#btn_eliminar").hide();
                             conexiontabla();
                         }
                     },
@@ -219,6 +224,7 @@
 
             });
 
+            ///EVENTO CANCELAR
             $("#btn_cancelar").on("click", function () {
 
                 $("#formulario_registro")[0].reset();
@@ -227,7 +233,46 @@
                 $("#btn_registrar").text("Registrar");
                 $("#btn_cancelar").hide();
                 $("#mensaje").text("");
-            })
+            });
+
+            ///EVENTO ELIMINAR
+            $("#btn_eliminar").on("click", function () {
+                var idT4 = Number($("#Id").val()) || 0;
+                if (idT4 <= 0) {
+                    $("#mensaje").text("Seleccione una tarea para eliminarla");
+                    return;
+                }
+
+                if (!confirm("¿Desea eliminar la tarea seleccionada?")) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("eliminar_tarea", "Registro")',
+                    type: "POST",
+                    data: { id : idT4 },
+
+                    success: function (respuesta) {
+                        $("#mensaje").text(respuesta.mensaje);
+
+                        if (respuesta.validacion) {
+                            $("#formulario_registro")[0].reset();
+                            $("#Id").val("0");
+
+                            $("#btn_registrar").text("Registrar");
+                            $("#btn_cancelar").hide();
+                            $("#btn_eliminar").hide();
+                            $("#mensaje").text("");
+                            conexiontabla();
+                        }
+                    },
+
+                    error: function () {
+                        $("#mensaje").text("ERROR 404, no se logró conectar");
+                    }
+                });
+
+            });
 
 
         });

@@ -149,6 +149,34 @@ namespace Tarea_2_Ericka_MoralesQ.Controllers
             });
 
         }
+
+        [HttpPost]
+        public JsonResult eliminar_tarea(int id)
+        {
+            
+            List<registro_tarea> tareas = lista_tareas();
+            registro_tarea tElimina = tareas.FirstOrDefault(t => t.Id == id);
+            if (tElimina == null)
+            {
+                return Json(new
+                {
+                    validacion = false,
+                    mensaje = "No se encontró la infomación"
+                });
+
+            }
+
+            tareas.Remove(tElimina);
+
+            Session["bloque_tareas"] = tareas;
+
+            return Json(new
+            {
+                validacion = true,
+                mensaje = "La tarea se eliminó correctamente"
+            });
+
+        }
     }
 
 
