@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewBag.Title = "Gestión de mis tareas";
+}
+
+<h2>Mis tareas</h2>
+<br />
+
+<div>
+    <h3>Registro de una nueva tarea</h3>
+    <br />
+    <form id="formulario_registro">
+        <div>
+            <label for="Titulo">Título:</label>
+            <input type="text" id="Titulo" name="Titulo" placeholder="Ejemplo: Tarea 2 - Programación web" />
+        </div>
+        <br />
+
+        <div>
+            <label for="Descripcion">Descripción:</label>
+            <input type="text" id="Descripcion" name="Descripcion" placeholder="¿Que quieres hacer?" />
+        </div>
+        <br />
+
+        <p>Fecha de registro: @DateTime.Now.ToString("dd/MM/yyyy")</p>
+
+        <div>
+            <label for="Duracion">Duración estimada (días):</label>
+            <input type="number" id="Duracion" name="Duracion" min="1" required />
+        </div>
+        <br />
+
+        <button type="submit">Registrar</button>
+
+    </form>
+
+    <p id="mensaje"></p>
+
+</div>
+
+<br />
+<br />
+<br />
+
+<hr />
+
+<h3>Mi lista de tareas</h3>
+
+<table class="table table-bordered table-striped" id="mostrar_tareas" >
+    <thead>
+        <tr>
+            <th>Número de registro</th>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Fecha de registro</th>
+            <th>Duración (días)</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+
+    <tbody id="tb_lista">
+        <tr>
+            <td colspan="6">Cargando mis tareas......</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+
+@section scripts{
+    <script>
+        $(function () {
+
+            function conexiontabla() {
+                $.ajax({
+                    url: '@Url.Action("mostrar_lista", "Registro")',
+                    type: "GET",
+
+                    success: function (tareas_mostrar) {
+                        var fila = "";
+
+                        if (tareas_mostrar.length === 0) {
+                            fila = '<tr><td colspan="6">No hay tareas registradas</td></tr>'
+
+                        } else {
+                            $.each(tareas_mostrar, function (indice, rtarea) {
+
+                                fila += `
+                                <tr>
+                                <td>${rtarea.Id}</td>
+                                <td>${rtarea.Titulo}</td>
+                                <td>${rtarea.Descripcion}</td>
+                                <td>${rtarea.Fecha_registro}</td>
+                                <td>${rtarea.Duracion}</td>
+                                <td> <select class="estado_tarea" data-id="${rtarea.Id}">
+                                <option value="false" ${!rtarea.Estado ? "selected" : ""}>Pendiente</option>
+                                <option value="true" ${rtarea.Estado ? "selected" : ""}>Completado</option>
+                                </select>
+                                </td>
+                                </tr>`
+                            });
+
+                        }
+                        $("#tb_lista").html(fila);
+                    },
+
+                    error: function () {
+                        $("#tb_lista").html('<tr><td colspan="6">No hay tareas registradas</td></tr>');
+                    }
+
+                });
+            }
+            $("#tb_lista").on("change", ".estado_tarea", function () {
+                var idT = $(this).data("id");
+                var nEstado = $(this).val() === "true";
+                $.ajax({
+                    url: '@Url.Action("cambiar_estado", "Registro")',
+                    type: "POST",
+                    data: { id: idT, estado: nEstado },
+                    success: function (respuesta) {
+                        $("#mensaje").text(respuesta.mensaje);
+                        if (respuesta.validacion) {
+                            conexiontabla();
+                        }
+                    },
+                    error: function () {
+                        $("#mensaje").text("No se pudo completar la operación");
+                        conexiontabla();
+                    }
+                })
+            })
+
+
+            conexiontabla();
+
+            $("#formulario_registro").on("submit", function (e) {
+                e.preventDefault();
+                var variables = {
+                    Titulo: $("#Titulo").val().trim(),
+                    Descripcion: $("#Descripcion").val().trim(),
+                    Duracion: $("#Duracion").val().trim(),
+                };
+
+                if (variables.Titulo === "" || variables.Descripcion === "" || variables.Duracion === "" || !Number.isInteger(Number(variables.Duracion))
+                    || Number(variables.Duracion) <= 0) {
+                    $("#mensaje").text("Por favor, complete todos los espacios correctamente");
+
+                    return;
+
+                }
+
+                $.ajax({
+
+                    url: '@Url.Action("registro", "Registro")',
+                    type: "POST",
+                    data: variables,
+
+                    success: function (respuesta) {
+                        $("#mensaje").text(respuesta.mensaje);
+
+                        if (respuesta.validacion) {
+                            $("#formulario_registro")[0].reset();
+                            conexiontabla();
+                        }
+                    },
+
+                    error: function () {
+                        $("#mensaje").text("ERROR 404, no se logró conectar");
+                    }
+
+
+                });
+
+
+            });
+        });
+
+
+    </script>
+
+}
+

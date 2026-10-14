@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Microsoft.Ajax.Utilities;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Web;
 using System.Web.Mvc;
 using Tarea_2_Ericka_MoralesQ.Models;
@@ -21,10 +24,92 @@ namespace Tarea_2_Ericka_MoralesQ.Controllers
             return (List < registro_tarea >)Session["bloque_tareas"];
 
         }
-       
+
+
         public ActionResult Index()
         {
             return View();
         }
+
+       
+        /// Registro de la información 
+        [HttpPost]
+        public JsonResult registro(registro_tarea tarea)
+        {
+           
+
+            if (tarea == null || string.IsNullOrWhiteSpace(tarea.Titulo) || string.IsNullOrWhiteSpace(tarea.Descripcion) || tarea.Duracion <= 0)
+            {
+                return Json(new
+                {
+                    validacion = false,
+                    mensaje = "Por favor, ingrese los datos correctamente"
+                });
+
+            }
+
+            List<registro_tarea> tareas = lista_tareas();
+            int registroId = tareas.Count == 0 ? 1 : tareas.Max(t => t.Id) + 1;
+            tarea.Id = registroId;
+            tarea.Fecha_registro = DateTime.Now;
+            tarea.Estado = false;
+
+            tareas.Add(tarea);
+            Session["bloque_tareas"] = tareas;
+
+            return Json(new
+            {
+
+                validacion = true,
+                mensaje = "La tarea se ha registrado correctamemte"
+
+
+            });
+        }
+
+        /// Mostrar la información en la tabla
+        [HttpGet]
+        public JsonResult mostrar_lista()
+        {
+            List<registro_tarea> tareas = lista_tareas();
+            var seleccion = tareas.Select(t => new { 
+                t.Id,
+                t.Titulo,
+                t.Descripcion,
+                t.Fecha_registro,
+                t.Duracion,
+                t.Estado
+           
+            }).ToList();
+
+            return Json(seleccion, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult cambiar_estado(int id, bool estado)
+        {
+            List<registro_tarea> tareas = lista_tareas();
+            registro_tarea _Tarea = tareas.FirstOrDefault(t => t.Id == id);
+            if (_Tarea == null)
+            {
+                return Json(new
+                {
+                    validacion = false,
+                    mensaje = "No se encontró la infomación"
+                });
+                
+            }
+
+            _Tarea.Estado = estado;
+            Session["bloque_tareas"] = tareas;
+
+            return Json(new
+            {
+                validacion = true,
+                mensaje = "El estado de la tarea se actualizó correctamente"
+            });
+        }
     }
+
+
 }
