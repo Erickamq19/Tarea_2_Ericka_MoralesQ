@@ -48,6 +48,19 @@
 <hr />
 
 <h3>Mi lista de tareas</h3>
+<br />
+<div id="filtro_tarea">
+    <label for="filtro_estado">Filtrar mis tareas por:</label>
+
+    <select id="filtro_estado" name="filtro_estado">
+        <option value="todas" selected>Todas</option>
+        <option value="pendientes" >Pendientes</option>
+        <option value="completadas" >Completadas</option>
+
+    </select>
+</div>
+
+<br />
 
 <table class="table table-bordered table-striped" id="mostrar_tareas" >
     <thead>
@@ -76,6 +89,8 @@
     <script>
         $(function () {
 
+            var fPrederminado = "todas";
+
             function conexiontabla() {
                 $.ajax({
                     url: '@Url.Action("mostrar_lista", "Registro")',
@@ -83,12 +98,22 @@
 
                     success: function (tareas_mostrar) {
                         var fila = "";
+                        var filtroT = tareas_mostrar.filter(function (tarea) {
+                            if (fPrederminado === "pendientes") {
+                                return tarea.Estado === false;
+                            }
 
-                        if (tareas_mostrar.length === 0) {
+                            if (fPrederminado === "completadas") {
+                                return tarea.Estado === true;
+                            }
+
+                            return true;
+                        });
+
+                        if (filtroT.length === 0) {
                             fila = '<tr><td colspan="6">No hay tareas registradas</td></tr>'
-
                         } else {
-                            $.each(tareas_mostrar, function (indice, rtarea) {
+                            $.each(filtroT, function (indice, rtarea) {
 
                                 fila += `
                                 <tr class="registroT" data-id="${rtarea.Id}">
@@ -115,6 +140,11 @@
 
                 });
             }
+            ///EVENTO FILTRAR TAREAS
+            $("#filtro_estado").on("change", function () {
+                fPrederminado = $(this).val();
+                conexiontabla();
+            });
 
             ///EVENTO DE CAMBIAR ESTADO
             $("#tb_lista").on("change", ".estado_tarea", function () {
