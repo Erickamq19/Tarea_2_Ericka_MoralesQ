@@ -10,6 +10,7 @@
     <h3>Registro de una nueva tarea</h3>
     <br />
     <form id="formulario_registro">
+        <input type="hidden" id="Id" name="Id" value="0"/>
         <div>
             <label for="Titulo">Título:</label>
             <input type="text" id="Titulo" name="Titulo" placeholder="Ejemplo: Tarea 2 - Programación web" />
@@ -30,7 +31,8 @@
         </div>
         <br />
 
-        <button type="submit">Registrar</button>
+        <button type="submit" id="btn_registrar">Registrar</button>
+        <button type="button" id="btn_cancelar" style="display:none;">Cancelar</button>
 
     </form>
 
@@ -88,7 +90,7 @@
                             $.each(tareas_mostrar, function (indice, rtarea) {
 
                                 fila += `
-                                <tr>
+                                <tr class="registroT" data-id="${rtarea.Id}">
                                 <td>${rtarea.Id}</td>
                                 <td>${rtarea.Titulo}</td>
                                 <td>${rtarea.Descripcion}</td>
@@ -112,6 +114,7 @@
 
                 });
             }
+
             $("#tb_lista").on("change", ".estado_tarea", function () {
                 var idT = $(this).data("id");
                 var nEstado = $(this).val() === "true";
@@ -129,8 +132,41 @@
                         $("#mensaje").text("No se pudo completar la operación");
                         conexiontabla();
                     }
-                })
-            })
+                });
+            });
+
+            $("#tb_lista").on("click", "tr.registroT", function (e) {
+                if ($(e.target).closest("select").length > 0) {
+                    return
+                }
+                var idT2 = $(this).data("id");
+                $.ajax({
+                    url: '@Url.Action("mostrar_lista", "Registro")',
+                    type: "GET",
+                    success: function (tareas) {
+                        var tarea = tareas.find(t => t.Id == idT2);
+                        if (!tarea) {
+                            $("#mensaje").text("No se pudo completar la operación de edición");
+                            return;
+
+                        }
+
+                        $("#Id").val(tarea.Id);
+                        $("#Titulo").val(tarea.Titulo);
+                        $("#Descripcion").val(tarea.Descripcion);
+                        $("#Duracion").val(tarea.Duracion);
+
+                        $("#btn_registrar").text("Guardar cambios");
+                        $("#btn_cancelar").show();
+                        $("#mensaje").text("Se está editando la tarea: " + tarea.Id);
+
+                    },
+                    error: function () {
+                        $("#mensaje").text("No se pudo completar la operación de edición");
+                    }
+
+                });
+            });
 
 
             conexiontabla();
@@ -151,9 +187,13 @@
 
                 }
 
+                var idT3 = Number($("#Id").val()) || 0;
+                variables.Id = idT3;
+                var operacion = idT3 > 0 ? '@Url.Action("editar_tarea", "Registro")' : '@Url.Action("registro", "Registro")';
+
                 $.ajax({
 
-                    url: '@Url.Action("registro", "Registro")',
+                    url: operacion,
                     type: "POST",
                     data: variables,
 
@@ -162,6 +202,9 @@
 
                         if (respuesta.validacion) {
                             $("#formulario_registro")[0].reset();
+                            $("#Id").val("0");
+                            $("#btn_registrar").text("Registrar");
+                            $("#btn_cancelar").hide();
                             conexiontabla();
                         }
                     },
@@ -175,6 +218,18 @@
 
 
             });
+
+            $("#btn_cancelar").on("click", function () {
+
+                $("#formulario_registro")[0].reset();
+
+                $("#Id").val("0");
+                $("#btn_registrar").text("Registrar");
+                $("#btn_cancelar").hide();
+                $("#mensaje").text("");
+            })
+
+
         });
 
 

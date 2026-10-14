@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Web;
 using System.Web.Mvc;
@@ -108,6 +109,45 @@ namespace Tarea_2_Ericka_MoralesQ.Controllers
                 validacion = true,
                 mensaje = "El estado de la tarea se actualizó correctamente"
             });
+        }
+
+        [HttpPost]
+        public JsonResult editar_tarea(registro_tarea tarea)
+        {
+            if (tarea == null || tarea.Id <= 0 || string.IsNullOrWhiteSpace(tarea.Titulo) || string.IsNullOrWhiteSpace(tarea.Descripcion) || tarea.Duracion <= 0)
+            {
+                return Json(new
+                {
+
+                    validacion = false,
+                    mensaje = "Por favor, ingrese los datos correctamente"
+                });
+                
+            }
+            List<registro_tarea> tareas = lista_tareas();
+            registro_tarea tEdicion = tareas.FirstOrDefault(t => t.Id == tarea.Id);
+            if (tEdicion == null)
+            {
+                return Json(new
+                {
+                    validacion = false,
+                    mensaje = "No se encontró la infomación"
+                });
+
+            }
+
+            tEdicion.Titulo = tarea.Titulo;
+            tEdicion.Descripcion = tarea.Descripcion;
+            tEdicion.Duracion = tarea.Duracion;
+
+            Session["bloque_tareas"] = tareas;
+
+            return Json(new
+            {
+                validacion = true,
+                mensaje = "El estado de la tarea se actualizó correctamente"
+            });
+
         }
     }
 
