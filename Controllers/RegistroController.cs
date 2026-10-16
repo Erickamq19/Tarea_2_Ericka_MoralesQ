@@ -77,7 +77,7 @@ namespace Tarea_2_Ericka_MoralesQ.Controllers
                 t.Id,
                 t.Titulo,
                 t.Descripcion,
-                t.Fecha_registro,
+                Fecha_registro = t.Fecha_registro.ToString("dd/MM/yyyy"),
                 t.Duracion,
                 t.Estado
            
