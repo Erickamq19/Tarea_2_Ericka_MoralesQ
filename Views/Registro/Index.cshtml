@@ -3,85 +3,90 @@
     ViewBag.Title = "Gestión de mis tareas";
 }
 
-<h2>Mis tareas</h2>
-<br />
 
-<div>
-    <h3>Registro de una nueva tarea</h3>
+<main>
+    <h2>Mis tareas</h2>
     <br />
-    <form id="formulario_registro">
-        <input type="hidden" id="Id" name="Id" value="0" />
-        <div>
-            <label for="Titulo">Título:</label>
-            <input type="text" id="Titulo" name="Titulo" placeholder="Ejemplo: Tarea 2 - Programación web" />
-        </div>
+
+    <div>
+        <h3>Registro de una nueva tarea</h3>
         <br />
+        <form id="formulario_registro">
+            <input type="hidden" id="Id" name="Id" value="0" />
+            <div>
+                <label for="Titulo">Título:</label>
+                <input type="text" id="Titulo" name="Titulo" placeholder="Ejemplo: Tarea 2 - Programación web" />
+            </div>
+            <br />
 
-        <div>
-            <label for="Descripcion">Descripción:</label>
-            <input type="text" id="Descripcion" name="Descripcion" placeholder="¿Que quieres hacer?" />
-        </div>
-        <br />
+            <div>
+                <label for="Descripcion">Descripción:</label>
+                <input type="text" id="Descripcion" name="Descripcion" placeholder="¿Que quieres hacer?" />
+            </div>
+            <br />
 
-        <p>Fecha de registro: @DateTime.Now.ToString("dd/MM/yyyy")</p>
+            <p>Fecha de registro: @DateTime.Now.ToString("dd/MM/yyyy")</p>
 
-        <div>
-            <label for="Duracion">Duración estimada (días):</label>
-            <input type="number" id="Duracion" name="Duracion" min="1" required />
-        </div>
-        <br />
+            <div>
+                <label for="Duracion">Duración estimada (días):</label>
+                <input type="number" id="Duracion" name="Duracion" min="1" required />
+            </div>
+            <br />
 
-        <button type="submit" id="btn_registrar">Registrar</button>
-        <button type="button" id="btn_cancelar" style="display:none;">Cancelar</button>
-        <button type="button" id="btn_eliminar" style="display:none;">Eliminar</button>
+            <button type="submit" id="btn_registrar">Registrar</button>
+            <button type="button" id="btn_cancelar" style="display:none;">Cancelar</button>
+            <button type="button" id="btn_eliminar" style="display:none;">Eliminar</button>
 
-    </form>
+        </form>
 
-    <p id="mensaje"></p>
+        <p id="mensaje"></p>
 
-</div>
+    </div>
 
-<br />
-<br />
-<br />
+    <br />
+    <br />
+    <br />
 
-<hr />
+    <hr />
 
-<h3>Mi lista de tareas</h3>
-<br />
-<div id="filtro_tarea">
-    <label for="filtro_estado">Filtrar mis tareas por:</label>
+    <h3>Mi lista de tareas</h3>
+    <br />
+    <div id="filtro_tarea">
+        <label for="filtro_estado">Filtrar mis tareas por:</label>
 
-    <select id="filtro_estado" name="filtro_estado">
-        <option value="todas" selected>Todas</option>
-        <option value="pendientes" >Pendientes</option>
-        <option value="completadas" >Completadas</option>
+        <select id="filtro_estado" name="filtro_estado">
+            <option value="todas" selected>Todas</option>
+            <option value="pendientes">Pendientes</option>
+            <option value="completadas">Completadas</option>
 
-    </select>
-</div>
+        </select>
+    </div>
 
-<br />
+    <br />
 
-<table class="table table-bordered table-striped" id="mostrar_tareas" >
-    <thead>
-        <tr>
-            <th>Número de registro</th>
-            <th>Título</th>
-            <th>Descripción</th>
-            <th>Fecha de registro</th>
-            <th>Duración (días)</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
+    <table class="table table-bordered table-striped" id="mostrar_tareas">
+        <thead>
+            <tr>
+                <th>Número de registro</th>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Fecha de registro</th>
+                <th>Duración (días)</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
 
-    <tbody id="tb_lista">
-        <tr>
-            <td colspan="6">Cargando mis tareas......</td>
-        </tr>
+        <tbody id="tb_lista">
+            <tr>
+                <td colspan="6">Cargando mis tareas......</td>
+            </tr>
 
-    </tbody>
+        </tbody>
 
-</table>
+    </table>
+
+</main>
+
 
 
 
